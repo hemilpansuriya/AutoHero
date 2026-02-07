@@ -5,45 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoHero Cloud Dashboard</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
         .container { max-width: 1100px; margin: auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h1 { color: #0078d4; text-align: center; }
-        .controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 6px; background: #0078d4; color: white; font-weight: bold; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        h1 { text-align: center; color: #0078d4; margin-bottom: 30px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #0078d4; color: white; }
+        /* Filter & Control Section */
+        .controls-wrapper { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e9ecef; }
+        .type-selector { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; }
         
-        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 10px; border-top: 2px solid #f4f4f4; }
-        #statusInfo { font-weight: bold; color: #555; }
+        input { padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; flex: 1; min-width: 150px; }
+        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 6px; background-color: #0078d4; color: white; font-weight: bold; transition: 0.2s; }
+        button:hover { background-color: #005a9e; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-search { background-color: #28a745; }
+        .btn-search:hover { background-color: #218838; }
+
+        /* Table Styling */
+        .table-wrapper { overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background-color: #0078d4; color: white; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
+        tr:hover { background-color: #f8f9fa; }
+
+        /* Pagination & Status */
+        .footer-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 2px solid #f4f7f6; }
+        #statusInfo { font-size: 14px; color: #666; font-weight: 600; }
+        .pagination-btns { display: flex; gap: 10px; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🚗 AutoHero Inventory</h1>
+    <div class="container">
+        <h1>🚗 AutoHero Inventory Management</h1>
+        
+        <div class="controls-wrapper">
+            <div class="type-selector">
+                <button onclick="changeType('car')">View Cars</button>
+                <button onclick="changeType('bike')" class="btn-secondary">View Bikes</button>
+            </div>
 
-    <div class="controls">
-        <button onclick="changeType('car')">Show Cars</button>
-        <button onclick="changeType('bike')">Show Bikes</button>
+            <div class="filter-bar">
+                <input type="text" id="brandInput" placeholder="Brand (e.g. Audi)">
+                <input type="number" id="yearInput" placeholder="Year">
+                <input type="number" id="priceInput" placeholder="Max Price">
+                <button class="btn-search" onclick="applyFilters()">Apply Filters</button>
+                <button class="btn-secondary" onclick="resetFilters()">Reset</button>
+            </div>
+        </div>
+
+        <div id="statusInfo">Initialising connection to Azure...</div>
+
+        <div class="table-wrapper">
+            <table id="inventoryTable">
+                <thead><tr id="tableHeader"></tr></thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="100%" style="text-align:center;">Loading inventory data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-tools">
+            <div id="pageIndicator">Page 1</div>
+            <div class="pagination-btns">
+                <button id="prevBtn" onclick="changePage(-1)">← Previous</button>
+                <button id="nextBtn" onclick="changePage(1)">Next →</button>
+            </div>
+        </div>
     </div>
 
-    <div id="statusInfo">Loading...</div>
-
-    <table id="inventoryTable">
-        <thead><tr id="tableHeader"></tr></thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-
-    <div class="pagination">
-        <button id="prevBtn" onclick="changePage(-1)">← Previous</button>
-        <span id="pageIndicator">Page 1</span>
-        <button id="nextBtn" onclick="changePage(1)">Next →</button>
-    </div>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
