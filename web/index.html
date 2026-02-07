@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoHero | Advanced Inventory</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #27ae60;
+            --bg: #f4f7f6;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: #333;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* Home Page Styles */
+        #home-page { padding: 60px 0; text-align: center; }
+        .hero-btn {
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            margin: 15px;
+            cursor: pointer;
+            border-radius: 50px;
+            border: none;
+            transition: 0.2s;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.15); }
+
+        /* Filter Bar */
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filter-bar input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        #counter {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 10px 0;
+            font-size: 1.1rem;
+        }
+
+        /* Grid & Cards */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; 
+        }
+
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card h4 { margin: 0 0 10px 0; text-transform: capitalize; color: var(--primary); }
+        .price { color: var(--accent); font-weight: bold; font-size: 1.2rem; margin-bottom: 10px; }
+
+        .hidden { display: none; }
+        
+        .load-more-box { text-align: center; margin: 40px 0; }
+        .btn-load {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px 45px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        .btn-load:disabled { background: #ccc; cursor: not-allowed; }
+        .back-btn { background: none; border: 1px solid white; color: white; cursor: pointer; padding: 5px 15px; border-radius: 4px; margin-top: 10px;}
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>AutoHero Marketplace</h1>
+    <div id="nav-controls" class="hidden">
+        <button class="back-btn" onclick="goHome()">⬅ Back to Menu</button>
+    </div>
+</header>
+
+<div class="container">
+    <div id="home-page">
+        <h2>Ready to find your next ride?</h2>
+        <button class="hero-btn" onclick="startShop('car')">🚗 Shop Cars</button>
+        <button class="hero-btn" onclick="startShop('bike')">🏍️ Shop Bikes</button>
+    </div>
+
+    <div id="shop-page" class="hidden">
+        <div class="filter-section">
+            <div class="filter-bar">
+                <input type="text" id="f-brand" placeholder="Search Brand..." oninput="resetAndLoad()">
+                <input type="number" id="f-year" placeholder="Year" oninput="resetAndLoad()">
+                <input type="number" id="f-price" placeholder="Max Price ($)" oninput="resetAndLoad()">
+                <input type="number" id="f-km" placeholder="Max Mileage (KM)" oninput="resetAndLoad()">
+            </div>
+            <div id="counter">Loading matches...</div>
+        </div>
+
+        <div id="vehicle-grid" class="grid"></div>
+
+        <div class="load-more-box">
+            <button id="load-more" class="btn-load" onclick="loadData()">Load More Results</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentType = '';
+    let skip = 0;
+    const limit = 12;
+
+    function startShop(type) {
+        currentType = type;
+        skip = 0;
+        
+        document.getElementById('home-page').classList.add('hidden');
+        document.getElementById('shop-page').classList.remove('hidden');
+        document.getElementById('nav-controls').classList.remove('hidden');
+        
+        document.getElementById('vehicle-grid').innerHTML = ''; 
+        loadData();
+    }
+
+    function resetAndLoad() {
+        skip = 0;
+        document.getElementById('vehicle-grid').innerHTML = '';
+        document.getElementById('load-more').disabled = false;
+        document.getElementById('load-more').innerText = "Load More Results";
+        loadData();
+    }
+
+    async function loadData() {
+        const brand = document.getElementById('f-brand').value;
+        const year = document.getElementById('f-year').value;
+        const price = document.getElementById('f-price').value;
+        const km = document.getElementById('f-km').value;
+
+        // Construct URL
+        let url = `http://127.0.0.1:8000/inventory/${currentType}?limit=${limit}&skip=${skip}`;
+        if (brand) url += `&brand=${encodeURIComponent(brand)}`;
+        if (year)  url += `&year=${year}`;
+        if (price) url += `&max_price=${price}`;
+        if (km)    url += `&max_km=${km}`;
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json(); // data = { total: X, results: [...] }
+            
+            const grid = document.getElementById('vehicle-grid');
+            const counter = document.getElementById('counter');
+
+            // Update Counter Text
+            counter.innerText = `Found ${data.total.toLocaleString()} ${currentType}s matching your criteria`;
+
+            if (data.results.length === 0 && skip === 0) {
+                grid.innerHTML = "<p style='grid-column: 1/-1; text-align: center; padding: 40px;'>No results found. Try changing your filters!</p>";
+                document.getElementById('load-more').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('load-more').classList.remove('hidden');
+
+            data.results.forEach(v => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h4>${v.brand} ${v.model}</h4>
+                    <p class="price">$${v.price.toLocaleString()}</p>
+                    <p><strong>Year:</strong> ${v.year}</p>
+                    <p><strong>Mileage:</strong> ${v.odometer.toLocaleString()} km</p>
+                    <p><strong>Engine:</strong> ${v.engine_cc} CC/PS</p>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Logic to disable "Load More" if we hit the end
+            if (skip + data.results.length >= data.total) {
+                document.getElementById('load-more').disabled = true;
+                document.getElementById('load-more').innerText = "No More Vehicles";
+            }
+
+            skip += limit;
+        } catch (err) {
+            console.error("Fetch error:", err);
+            document.getElementById('counter').innerText = "API Error: Is FastAPI running?";
+        }
+    }
+
+    function goHome() {
+        document.getElementById('home-page').classList.remove('hidden');
+        document.getElementById('shop-page').classList.add('hidden');
+        document.getElementById('nav-controls').classList.add('hidden');
+        // Reset filter inputs
+        document.querySelectorAll('.filter-bar input').forEach(i => i.value = '');
+    }
+</script>
+
+</body>
+</html>
