@@ -1,8 +1,10 @@
+import os
+import sqlite3
 from typing import Optional
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import sqlite3
-import os
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -10,6 +12,18 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
 )
+
+
+# 2. MOUNT STATIC FILES
+# This tells FastAPI: "If someone asks for /static/script.js, look in the src folder"
+app.mount("/static", StaticFiles(directory="src"), name="static")
+
+
+# 3. THE HOME ROUTE
+# This serves your HTML when someone visits the main Azure URL
+@app.get("/")
+async def read_index():
+    return FileResponse("src/index.html")
 
 
 def get_db_connection():

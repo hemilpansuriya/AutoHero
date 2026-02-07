@@ -1,4 +1,4 @@
-const BASE_URL = "https://autohero-api-hemil-eucbagezcqg3cbe4.canadacentral-01.azurewebsites.net/inventory";
+const BASE_URL = "/inventory";
 let currentType = 'car';
 let skip = 0;
 const limit = 10;
