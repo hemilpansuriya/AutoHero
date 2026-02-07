@@ -12,9 +12,22 @@ app.add_middleware(
 
 
 def get_db_connection():
-    conn = sqlite3.connect("src/autohero.db")
-    conn.row_factory = sqlite3.Row  # this returns data as a dictionary
+    # 1. Find the folder where this main.py lives (the 'src' folder)
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    # 2. Create the full path to the database right next to it
+    db_path = os.path.join(BASE_DIR, "autohero.db")
+
+    # 3. Connect using the absolute path
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
     return conn
+
+
+# def get_db_connection():
+#    conn = sqlite3.connect("src/autohero.db")
+#    conn.row_factory = sqlite3.Row  # this returns data as a dictionary
+#    return conn
 
 
 @app.get("/inventory")
