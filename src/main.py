@@ -12,7 +12,7 @@ app.add_middleware(
 
 
 def get_db_connection():
-    conn = sqlite3.connect("autohero.db")
+    conn = sqlite3.connect("src/autohero.db")
     conn.row_factory = sqlite3.Row  # this returns data as a dictionary
     return conn
 
