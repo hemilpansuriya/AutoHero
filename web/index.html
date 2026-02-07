@@ -175,7 +175,7 @@
         const km = document.getElementById('f-km').value;
 
         // Construct URL
-        let url = `http://127.0.0.1:8000/inventory/${currentType}?limit=${limit}&skip=${skip}`;
+        let url = `https://autohero-api-hemil-eucbagezcqg3cbe4.canadacentral-01.azurewebsites.net`;
         if (brand) url += `&brand=${encodeURIComponent(brand)}`;
         if (year)  url += `&year=${year}`;
         if (price) url += `&max_price=${price}`;
